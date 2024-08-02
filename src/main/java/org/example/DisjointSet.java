@@ -39,7 +39,7 @@ public class DisjointSet {
     }
 
     private static boolean hasUnion(List<String> list1, List<String> list2) {
-
+        System.out.println();
         for (int i = 0; i < Math.min(list1.size(), list2.size()); i++) {
             if (!list1.get(i).isEmpty() && !list2.get(i).isEmpty() && list1.get(i).equals(list2.get(i))) {
                 return true;
