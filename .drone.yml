@@ -1,0 +1,66 @@
+kind: pipeline
+type: docker
+name: update-files-on-release
+
+steps:
+  - name: checkout
+    image: alpine/git
+    commands:
+      - git clone https://github.com/your-org/your-repo.git
+      - cd your-repo
+
+  - name: update-sep-json
+    image: stedolan/jq
+    commands:
+      - echo "Updating sep.json version"
+      - version=$(jq -r '.version' sep.json)
+      - new_version=$(echo $version | awk -F. -v OFS=. '{$NF++;print}')
+      - jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
+      - jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
+      - cat sep.json
+
+  - name: update-release-notes
+    image: busybox
+    commands:
+      - echo "Appending to release_notes.txt"
+      - echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
+
+  - name: commit-and-push
+    image: alpine/git
+    environment:
+      GIT_USERNAME:
+        from_secret: git_username
+      GIT_PASSWORD:
+        from_secret: git_password
+    commands:
+      - git config --global user.name "$GIT_USERNAME"
+      - git config --global user.email "$GIT_USERNAME@example.com"
+      - git add sep.json release_notes.txt
+      - git commit -m "Update sep.json and release_notes.txt to version $new_version"
+      - git push https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/your-repo.git
+
+  - name: update-other-repos
+    image: alpine/git
+    environment:
+      GIT_USERNAME:
+        from_secret: git_username
+      GIT_PASSWORD:
+        from_secret: git_password
+    commands:
+      - REPOS=("repo1" "repo2" "repo3") # Укажите здесь ваши репозитории
+      - for REPO in "${REPOS[@]}"; do
+        git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/$REPO.git;
+        cp sep.json $REPO/;
+        cp release_notes.txt $REPO/;
+        cd $REPO;
+        git add .;
+        git commit -m "Update files from release branch to version $new_version";
+        git push https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/$REPO.git;
+        cd ..;
+        done
+
+trigger:
+  event:
+    - push
+  branch:
+    - release
