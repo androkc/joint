@@ -42,7 +42,7 @@ jobs:
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)
           git commit -m "Update sep.json and release_notes.txt to version $new_version"
-          git push https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@github.com/your-org/your-repo.git
+          git push https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@github.com/joint.git
 
 #      - name: Update other repositories
 #        env:
