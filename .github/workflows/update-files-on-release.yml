@@ -3,7 +3,7 @@ name: Update Files on Release
 on:
   push:
     branches:
-      - release
+      - master
 
 jobs:
   update-files:
