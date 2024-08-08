@@ -26,7 +26,7 @@ jobs:
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
           
             # Обновление версии четвертого элемента в массиве microservices
-          third_element_version=$(jq -r '.microservices[3].version' sep.json)
+          third_element_version=$(jq -r '.microservices[4].version' sep.json)
           if [[ -n "$third_element_version" ]]; then
             new_third_element_version=$(echo "$third_element_version" | awk -F. -v OFS=. '{$NF++;print}')
             jq --arg new_version "$new_third_element_version" '.microservices[2].version = $new_version' sep.json > temp.json && mv temp.json sep.json

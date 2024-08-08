@@ -15,7 +15,7 @@
     },
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/step-certificates-1.26.2.tgz?ref_type=heads",
-      "version": "1.0.1",
+      "version": "1.0.0",
       "action": "установить"
     },
     {
