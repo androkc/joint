@@ -31,10 +31,6 @@ jobs:
           new_version=$(cat version.txt)
           echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
 
-      - name: Add SSH key
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Commit and push changes
         env:
