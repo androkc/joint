@@ -24,6 +24,18 @@ jobs:
           new_version=$(echo $version | awk -F. -v OFS=. '{$NF++;print}')
           jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
+          
+            # Обновление версии четвертого элемента в массиве microservices
+          third_element_version=$(jq -r '.microservices[3].version' sep.json)
+          if [[ -n "$third_element_version" ]]; then
+            new_third_element_version=$(echo "$third_element_version" | awk -F. -v OFS=. '{$NF++;print}')
+            jq --arg new_version "$new_third_element_version" '.microservices[2].version = $new_version' sep.json > temp.json && mv temp.json sep.json
+            echo "Updated third microservice to version $new_third_element_version"
+          else
+            echo "The third microservice version is not set. Skipping update."
+          fi
+          
+          
           echo $new_version > version.txt
 
       - name: Update release notes
@@ -32,26 +44,6 @@ jobs:
           new_version=$(cat version.txt)
           echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
 
-
-
-
-
-      - name: Print environment variables
-        run: |
-          echo "PAT_TOKEN: ${{ secrets.PAT_TOKEN }}"
-          echo "GIT_EMAIL: ${{ secrets.GIT_EMAIL }}"
-          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
-          echo "GITHUB_SHA: $GITHUB_SHA"
-
-      - name: Debug Git configuration
-        run: |
-         git config --list
-         git remote -v
-         git status
-      
-      
-      
-            
 
       - name: Commit and push changes
         env:
