@@ -28,7 +28,7 @@ jobs:
             # Обновление версии четвертого элемента в массиве microservices
           element_version=$(jq -r '.microservices[3].version' sep.json)
           if [[ -n "$element_version" ]]; then
-            new_element_version=$(echo "$third_element_version" | awk -F. -v OFS=. '{$NF++;print}')
+            new_element_version=$(echo "$element_version" | awk -F. -v OFS=. '{$NF++;print}')
             jq --arg new_version "$new_element_version" '.microservices[3].version = $new_version' sep.json > temp.json && mv temp.json sep.json
             echo "Updated third microservice to version $new_element_version"
           else
@@ -41,7 +41,7 @@ jobs:
       - name: Update release notes
         run: |
           echo "Updating release_notes.txt"
-          
+
           # Получение сообщения последнего коммита
           commit_message=$(git log -1 --pretty=%B)
           
