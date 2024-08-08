@@ -26,11 +26,11 @@ jobs:
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
           
             # Обновление версии четвертого элемента в массиве microservices
-          third_element_version=$(jq -r '.microservices[3].version' sep.json)
+          element_version=$(jq -r '.microservices[3].version' sep.json)
           if [[ -n "$third_element_version" ]]; then
-            new_third_element_version=$(echo "$third_element_version" | awk -F. -v OFS=. '{$NF++;print}')
-            jq --arg new_version "$new_third_element_version" '.microservices[3].version = $new_version' sep.json > temp.json && mv temp.json sep.json
-            echo "Updated third microservice to version $new_third_element_version"
+            new_element_version=$(echo "$third_element_version" | awk -F. -v OFS=. '{$NF++;print}')
+            jq --arg new_version "$new_element_version" '.microservices[3].version = $new_version' sep.json > temp.json && mv temp.json sep.json
+            echo "Updated third microservice to version $new_element_version"
           else
             echo "The third microservice version is not set. Skipping update."
           fi
@@ -40,9 +40,28 @@ jobs:
 
       - name: Update release notes
         run: |
-          echo "Appending to release_notes.txt"
-          new_version=$(cat version.txt)
-          echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
+          echo "Updating release_notes.txt"
+          
+          # Получение сообщения последнего коммита
+          commit_message=$(git log -1 --pretty=%B)
+          
+          # Определение номера следующей записи
+          if [[ -f release_notes.txt ]]; then
+            last_entry=$(tail -n 1 release_notes.txt | awk '{print $NF}')
+            if [[ $last_entry =~ ^[0-9]+$ ]]; then
+              next_number=$((last_entry + 1))
+            else
+              next_number=1
+            fi
+          else
+            next_number=1
+          fi
+
+          # Формирование новой записи
+          new_entry="Сборка $next_number: $commit_message"
+
+          # Запись новой записи в файл
+          echo "$new_entry" >> release_notes.txt
 
 
       - name: Commit and push changes
