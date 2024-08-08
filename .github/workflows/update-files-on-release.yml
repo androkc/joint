@@ -27,7 +27,7 @@ jobs:
           
             # Обновление версии четвертого элемента в массиве microservices
           element_version=$(jq -r '.microservices[3].version' sep.json)
-          if [[ -n "$third_element_version" ]]; then
+          if [[ -n "$element_version" ]]; then
             new_element_version=$(echo "$third_element_version" | awk -F. -v OFS=. '{$NF++;print}')
             jq --arg new_version "$new_element_version" '.microservices[3].version = $new_version' sep.json > temp.json && mv temp.json sep.json
             echo "Updated third microservice to version $new_element_version"
@@ -45,9 +45,10 @@ jobs:
           # Получение сообщения последнего коммита
           commit_message=$(git log -1 --pretty=%B)
           
-          # Определение номера следующей записи
+          # Определение следующего номера записи
           if [[ -f release_notes.txt ]]; then
-            last_entry=$(tail -n 1 release_notes.txt | awk '{print $NF}')
+            # Извлечение последнего номера
+            last_entry=$(tail -n 1 release_notes.txt | awk '{print $1}')
             if [[ $last_entry =~ ^[0-9]+$ ]]; then
               next_number=$((last_entry + 1))
             else
@@ -58,11 +59,11 @@ jobs:
           fi
 
           # Формирование новой записи
-          new_entry="Сборка $next_number: $commit_message"
+          new_entry="$next_number. $commit_message"
 
           # Запись новой записи в файл
           echo "$new_entry" >> release_notes.txt
-
+          
 
       - name: Commit and push changes
         env:
