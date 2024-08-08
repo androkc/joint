@@ -36,7 +36,7 @@ jobs:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
         run: |
-          git config --global user.name "github-actions"
+          git config --global user.name "androkc"
           git config --global user.email "$GIT_EMAIL"
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)

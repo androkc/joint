@@ -4,10 +4,13 @@ name: update-files-on-release
 
 steps:
   - name: checkout
-    image: alpine/git
+    image: alpine:3.12
     commands:
       - git clone https://github.com/your-org/your-repo.git
       - cd your-repo
+    when:
+      branch:
+        - release-*
 
   - name: update-sep-json
     image: stedolan/jq
@@ -18,16 +21,23 @@ steps:
       - jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
       - jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
       - cat sep.json
+    when:
+      branch:
+        - release-*
 
   - name: update-release-notes
     image: busybox
     commands:
       - echo "Appending to release_notes.txt"
       - echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
+    when:
+      branch:
+        - release-*
 
   - name: commit-and-push
-    image: alpine/git
+    image: alpine:3.12
     environment:
+      # mb use token?
       GIT_USERNAME:
         from_secret: git_username
       GIT_PASSWORD:
@@ -38,16 +48,20 @@ steps:
       - git add sep.json release_notes.txt
       - git commit -m "Update sep.json and release_notes.txt to version $new_version"
       - git push https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/your-repo.git
+    when:
+      branch:
+        - release-*
 
   - name: update-other-repos
-    image: alpine/git
+    image: alpine:3.12
     environment:
+ # mb use token?
       GIT_USERNAME:
         from_secret: git_username
       GIT_PASSWORD:
         from_secret: git_password
     commands:
-      - REPOS=("repo1" "repo2" "repo3") # Укажите здесь ваши репозитории
+      - REPOS=("repo1" "repo2" "repo3")
       - for REPO in "${REPOS[@]}"; do
         git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/$REPO.git;
         cp sep.json $REPO/;
@@ -58,9 +72,7 @@ steps:
         git push https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/$REPO.git;
         cd ..;
         done
+    when:
+      branch:
+        - release-*
 
-trigger:
-  event:
-    - push
-  branch:
-    - release
