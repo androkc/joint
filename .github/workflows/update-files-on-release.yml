@@ -32,11 +32,32 @@ jobs:
           echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
 
 
+
+
+
+      - name: Print environment variables
+        run: |
+          echo "PAT_TOKEN: ${{ secrets.PAT_TOKEN }}"
+          echo "GIT_EMAIL: ${{ secrets.GIT_EMAIL }}"
+          echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+          echo "GITHUB_SHA: $GITHUB_SHA"
+
+      - name: Debug Git configuration
+        run: |
+         git config --list
+         git remote -v
+         git status
+      
+      
+      
+            
+
       - name: Commit and push changes
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
         run: |
+          set -x
           git config --global user.name "androkc"
           git config --global user.email "$GIT_EMAIL"
           git add sep.json release_notes.txt
@@ -44,8 +65,9 @@ jobs:
           git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
           echo "Token: $PAT_TOKEN"
           echo "Email: $GIT_EMAIL"
+          echo "Attempting to push changes..."
           git push https://x-access-token:$PAT_TOKEN@github.com/androkc/joint.git || { echo "Git push failed"; exit 1; }
-
+          echo "Git push succeeded"
 
 
 
