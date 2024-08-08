@@ -41,24 +41,10 @@ jobs:
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)
           git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
+          echo "Token: $PAT_TOKEN"
+          echo "Email: $GIT_EMAIL"
           git push https://x-access-token:$PAT_TOKEN@github.com/androkc/joint.git || { echo "Git push failed"; exit 1; }
 
-#      - name: Update other repositories
-#        env:
-#          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
-#          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
-#        run: |
-#          REPOS=("repo1" "repo2" "repo3") # Укажите здесь ваши репозитории
-#          for REPO in "${REPOS[@]}"; do
-#            git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@github.com/your-org/$REPO.git;
-#            cp sep.json $REPO/;
-#            cp release_notes.txt $REPO/;
-#            cd $REPO;
-#            git add .;
-#            git commit -m "Update files from release branch to version $new_version";
-#            git push https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@github.com/your-org/$REPO.git;
-#            cd ..;
-#          done
 
 
 
