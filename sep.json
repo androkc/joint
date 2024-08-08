@@ -1,7 +1,7 @@
 {
   "date": "08.08.2024",
   "name": "sep",
-  "version": "1.5",
+  "version": "1.6",
   "microservices": [
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/front-admin-0.1.0.tgz?ref_type=heads",
