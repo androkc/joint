@@ -41,7 +41,7 @@ jobs:
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)
           git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
-          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/androkc/joint.git || { echo "Git push failed"; exit 1; }
+          git push https://x-access-token:$PAT_TOKEN@github.com/androkc/joint.git || { echo "Git push failed"; exit 1; }
 
 #      - name: Update other repositories
 #        env:
