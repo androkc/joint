@@ -38,15 +38,17 @@ jobs:
 
       - name: Commit and push changes
         env:
-         GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
         run: |
-         git config --global user.name "androkc"
-         git config --global user.email "$GIT_EMAIL"
-         git add sep.json release_notes.txt
-         new_version=$(cat version.txt)
-         git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
-         echo "Email: $GIT_EMAIL"
-         git push origin || { echo "Git push failed"; exit 1; }
+          git config --global user.name "androkc"
+          git config --global user.email "$GIT_EMAIL"
+          git add sep.json release_notes.txt
+          new_version=$(cat version.txt)
+          git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
+          echo "Token: $PAT_TOKEN"
+          echo "Email: $GIT_EMAIL"
+          git push https://x-access-token:$PAT_TOKEN@github.com/androkc/joint.git || { echo "Git push failed"; exit 1; }
 
 
 
