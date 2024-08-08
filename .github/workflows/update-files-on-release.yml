@@ -59,8 +59,20 @@ jobs:
           # Формирование новой записи
           new_entry="$next_number. $commit_message"
 
-          # Запись новой записи в файл
-          echo "$new_entry" >> release_notes.txt
+          # Создание временного файла с обновленными записями
+          temp_file=$(mktemp)
+
+          # Добавление новой записи в файл
+          if [[ -f release_notes.txt ]]; then
+            # Копируем существующие записи в новый файл
+            cat release_notes.txt > "$temp_file"
+          fi
+
+          # Записываем новую запись
+          echo "$new_entry" >> "$temp_file"
+
+          # Перемещаем временный файл обратно в основной файл
+          mv "$temp_file" release_notes.txt
       
       
 
