@@ -58,7 +58,7 @@ jobs:
           GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
         run: |
           set -x
-          git config --global user.name "androkc"
+          git config --global user.name "Petr Gurin"
           git config --global user.email "$GIT_EMAIL"
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)
