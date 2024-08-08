@@ -1,7 +1,7 @@
 {
   "date": "08.08.2024",
   "name": "sep",
-  "version": "1.3",
+  "version": "1.4",
   "microservices": [
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/front-admin-0.1.0.tgz?ref_type=heads",
@@ -15,7 +15,7 @@
     },
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/step-certificates-1.26.2.tgz?ref_type=heads",
-      "version": "1.0.0",
+      "version": "1",
       "action": "установить"
     },
     {
