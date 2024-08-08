@@ -33,16 +33,15 @@ jobs:
 
       - name: Commit and push changes
         env:
-          GIT_USERNAME: ${{ secrets.GIT_USERNAME }}
-          GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
         run: |
-          git config --global user.name "$GIT_USERNAME"
+          git config --global user.name "github-actions"
           git config --global user.email "$GIT_EMAIL"
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)
-          git commit -m "Update sep.json and release_notes.txt to version $new_version"
-          git push https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@github.com/${{ secrets.GIT_USERNAME }}/joint.git
+          git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
+          git push https://x-access-token:${{ secrets.GIT_TOKEN }}@github.com/${{ secrets.GIT_USERNAME }}/joint.git || { echo "Git push failed"; exit 1; }
 
 #      - name: Update other repositories
 #        env:
