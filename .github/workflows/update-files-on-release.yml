@@ -47,12 +47,12 @@ jobs:
           
           # Определение следующего номера записи
           if [[ -f release_notes.txt ]]; then
-            # Извлечение последнего номера
-            last_entry=$(tail -n 1 release_notes.txt | awk '{print $1}')
-            if [[ $last_entry =~ ^[0-9]+$ ]]; then
-              next_number=$((last_entry + 1))
-            else
+            # Извлечение всех номеров записей и определение следующего
+            last_number=$(grep -o '^[0-9]\+' release_notes.txt | sort -n | tail -n 1)
+            if [[ -z "$last_number" ]]; then
               next_number=1
+            else
+              next_number=$((last_number + 1))
             fi
           else
             next_number=1
