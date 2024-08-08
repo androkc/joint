@@ -40,29 +40,27 @@ jobs:
 
       - name: Update release notes
         run: |
-          echo "Updating release_notes.txt"
+       # Получение сообщения последнего коммита
+         commit_message=$(git log -1 --pretty=%B)
 
-          # Получение сообщения последнего коммита
-          commit_message=$(git log -1 --pretty=%B)
-          
-          # Определение следующего номера записи
-          if [[ -f release_notes.txt ]]; then
-            # Извлечение всех номеров записей и определение следующего
-            last_number=$(grep -o '^[0-9]\+' release_notes.txt | sort -n | tail -n 1)
-            if [[ -z "$last_number" ]]; then
-              next_number=1
-            else
-              next_number=$((last_number + 1))
-            fi
-          else
+    # Определение следующего номера записи
+         if [[ -f release_notes.txt ]]; then
+     # Извлечение всех номеров записей и определение следующего
+          last_number=$(grep -o '^[0-9]\+' release_notes.txt | sort -n | tail -n 1)
+          if [[ -z "$last_number" ]]; then
             next_number=1
+          else
+            next_number=$((last_number + 1))
           fi
+         else
+          next_number=1
+         fi
 
-          # Формирование новой записи
-          new_entry="$next_number. $commit_message"
+    # Формирование новой записи
+         new_entry="$next_number. $commit_message"
 
-          # Запись новой записи в файл
-          echo "$new_entry" >> release_notes.txt
+    # Запись новой записи в файл
+         echo "$new_entry" >> release_notes.txt
           
 
       - name: Commit and push changes
