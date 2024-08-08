@@ -1,7 +1,7 @@
 {
   "date": "08.08.2024",
   "name": "sep",
-  "version": "1.1",
+  "version": "1.2",
   "microservices": [
     {
       "git": "https://github.com/androkc/joint",
