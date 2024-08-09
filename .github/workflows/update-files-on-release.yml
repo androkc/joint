@@ -79,35 +79,44 @@ jobs:
 
       - name: Update release notes
         run: |
-          commit_message=$ORIGINAL_COMMIT_MESSAGE
+          # Получение сообщения последнего коммита
+               commit_message=$(git log -1 --pretty=%B)
 
-          filtered_message=$(echo "$commit_message" | sed '/^\(Merge\|Rebase\|.*pull request.*\|.*from.*\)$/d')
+          # Фильтрация ненужных строк (например, Merge, pull request, Rebase и т.д.)
+               filtered_message=$(echo "$commit_message" | sed '/^\(Merge\|Rebase\|.*pull request.*\|.*from.*\)$/d')
 
-          if [[ -z "$filtered_message" ]]; then
-            echo "Filtered commit message is empty, skipping."
-            exit 0
-          fi
+          # Если после фильтрации сообщение пустое, пропускаем его
+               if [[ -z "$filtered_message" ]]; then
+               echo "Filtered commit message is empty, skipping."
+               exit 0
+               fi
 
-          filtered_message=$(echo "$filtered_message" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')
+          # Удаление лишних переносов строк, чтобы всё сообщение оставалось на одной строке
+               filtered_message=$(echo "$filtered_message" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')
 
-          if [[ -f release_notes.txt ]]; then
-            last_number=$(grep -o '^[0-9]\+' release_notes.txt | sort -n | tail -n 1)
-            if [[ -z "$last_number" ]]; then
-              next_number=1
-            else
-              next_number=$((last_number + 1))
-            fi
-          else
-            next_number=1
-          fi
+          # Определение следующего номера записи
+               if [[ -f release_notes.txt ]]; then
+          # Извлечение всех номеров записей и определение следующего
+               last_number=$(grep -o '^[0-9]\+' release_notes.txt | sort -n | tail -n 1)
+               if [[ -z "$last_number" ]]; then
+               next_number=1
+               else
+               next_number=$((last_number + 1))
+               fi
+               else
+               next_number=1
+               fi
 
-          new_entry="$next_number. $filtered_message"
+          # Формирование новой записи
+               new_entry="$next_number. $filtered_message"
 
-          if [ -s release_notes.txt ] && [ "$(tail -c1 release_notes.txt)" != "" ]; then
-            echo "" >> release_notes.txt
-          fi
+          # Проверка, заканчивается ли файл на новую строку, и добавление новой строки при необходимости
+               if [ -s release_notes.txt ] && [ "$(tail -c1 release_notes.txt)" != "" ]; then
+               echo "" >> release_notes.txt
+               fi
 
-          echo "$new_entry" >> release_notes.txt
+          # Добавление новой записи
+               echo "$new_entry" >> release_notes.txt
 
       
 
