@@ -44,7 +44,7 @@ jobs:
           if [ "$current_date" != "$last_build_date" ]; then
             new_build_number="01"
           else
-            new_build_number=$(printf "%02d" $((10#$last_build_number + 1)))
+            new_build_number=$(printf "%0${#last_build_number}d" $((10#$last_build_number + 1)))
           fi
 
           echo "New build number: $new_build_number"
