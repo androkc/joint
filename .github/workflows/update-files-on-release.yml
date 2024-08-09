@@ -141,6 +141,9 @@ jobs:
             git clone https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') temp_repo
             cd temp_repo
 
+            # Switch to the dev branch
+            git checkout dev || git checkout -b dev
+
             # Copy updated files
             cp ../sep.json sep.json
             cp ../release_notes.txt release_notes.txt
@@ -149,7 +152,7 @@ jobs:
             git config --global user.name "Petr Gurin"
             git config --global user.email "$GIT_EMAIL"
             git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; cd ..; rm -rf temp_repo; continue; }
-            git push https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///')
+            git push https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') dev
 
             cd ..
             rm -rf temp_repo
