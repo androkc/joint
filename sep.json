@@ -1,7 +1,7 @@
 {
   "date": "09.08.2024",
   "name": "sep",
-  "version": "1.2024080912",
+  "version": "1.2024080913",
   "microservices": [
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/front-admin-0.1.0.tgz?ref_type=heads",
@@ -20,7 +20,7 @@
     },
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/synapi-0.1.0.tgz?ref_type=heads",
-      "version": "1.20240809.12",
+      "version": "1.20240809.13",
       "action": "установить"
     }
   ],
