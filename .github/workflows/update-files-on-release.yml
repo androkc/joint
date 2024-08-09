@@ -74,7 +74,6 @@ jobs:
           # Перемещаем временный файл обратно в основной файл
           mv "$temp_file" release_notes.txt
       
-      
 
       - name: Commit and push changes
         env:
