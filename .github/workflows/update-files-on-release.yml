@@ -133,18 +133,17 @@ jobs:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
         run: |
-          # Define other repositories to update
+          
           repos=("https://github.com/androkc/cicdcheck.git")
 
           for repo in "${repos[@]}"; do
-            # Clone the repository with authentication
             git clone https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') temp_repo
             cd temp_repo
 
-            # Switch to the dev branch
+            
             git checkout dev || git checkout -b dev
 
-            # Copy updated files
+            
             cp ../sep.json sep.json
             cp ../release_notes.txt release_notes.txt
 
