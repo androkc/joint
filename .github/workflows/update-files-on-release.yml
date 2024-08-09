@@ -22,10 +22,7 @@ jobs:
           echo "Updating sep.json version"
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
           
-          # Получаем текущую дату в формате YYYYMMDD
           current_date=$(date +%Y%m%d)
-
-          # Получаем текущую версию из sep.json
           current_version=$(jq -r '.version' sep.json)
 
           # Разбиваем текущую версию на основную часть и часть сборки
@@ -45,10 +42,28 @@ jobs:
           fi
 
           echo "New build number: $new_build_number"
-
-          # Создаем новую версию
           new_version="${main_version}.${current_date}${new_build_number}"
           echo "New version: $new_version"
+
+
+          current_rep_version=$(jq -r '.microservices[-1].version' "$json_file")
+  
+          # Разбиваем текущую версию на основную часть и номер
+          main_rep_version=$(echo $current_rep_version | awk -F. '{print $1"."$2}')
+          last_build_rep_number=$(echo $current_rep_version | awk -F. '{print $3}')
+  
+          # Увеличиваем номер на 1
+          new_build_rep_number=$(printf "%0${#last_build_rep_number}d" $((10#$last_build_rep_number + 1)))
+  
+          # Создаем новую версию
+          new_rep_version="${main_rep_version}.${new_build_rep_number}"
+  
+          # Обновляем версию последнего элемента массива в JSON
+          jq --arg new_rep_version "$new_rep_version" '.microservices[-1].version = $new_rep_version' "$json_file" > temp.json && mv temp.json "$json_file"
+
+
+
+
 
           # Обновляем версию в sep.json
           jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
@@ -56,13 +71,7 @@ jobs:
           # Сохраняем новую версию в файл для дальнейшего использования
           echo $new_version > version.txt
 
-      - name: Check for changes
-        run: |
-          git add sep.json release_notes.txt
-          if git diff-index --quiet HEAD; then
-            echo "No changes to commit"; 
-            exit 0; 
-          fi    
+      
 
       - name: Update release notes
         run: |
