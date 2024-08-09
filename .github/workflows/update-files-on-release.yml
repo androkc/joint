@@ -46,7 +46,7 @@ jobs:
           echo "New version: $new_version"
 
 
-          current_rep_version=$(jq -r '.microservices[-1].version' "$json_file")
+          current_rep_version=$(jq -r '.microservices[-1].version' sep.json)
   
           # Разбиваем текущую версию на основную часть и номер
           main_rep_version=$(echo $current_rep_version | awk -F. '{print $1"."$2}')
