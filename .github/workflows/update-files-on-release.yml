@@ -137,7 +137,8 @@ jobs:
           repos=("https://github.com/androkc/cicdcheck.git")
 
           for repo in "${repos[@]}"; do
-            git clone $repo temp_repo
+            # Clone the repository with authentication
+            git clone https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') temp_repo
             cd temp_repo
 
             # Copy updated files
@@ -148,7 +149,7 @@ jobs:
             git config --global user.name "Petr Gurin"
             git config --global user.email "$GIT_EMAIL"
             git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; cd ..; rm -rf temp_repo; continue; }
-            git push https://x-access-token:$PAT_TOKEN@github.com/androkc/$(basename -s .git $repo).git
+            git push https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///')
 
             cd ..
             rm -rf temp_repo
