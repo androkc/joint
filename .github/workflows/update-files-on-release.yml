@@ -58,7 +58,14 @@ jobs:
 
           # Сохраняем новую версию в файл для дальнейшего использования
           echo $new_version > version.txt
-          
+
+      - name: Check for changes
+        run: |
+          git add sep.json release_notes.txt
+          if git diff-index --quiet HEAD; then
+            echo "No changes to commit"; 
+            exit 0; 
+          fi    
 
       - name: Update release notes
         run: |
