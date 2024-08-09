@@ -82,9 +82,12 @@ jobs:
           # Получение сообщения последнего коммита
           commit_message=$(git log -1 --pretty=%B)
 
-          # Фильтрация ненужных сообщений (например, Merge, pull request, Rebase и т.д.)
-          if [[ $commit_message =~ ^(Merge|Rebase|.*pull request.*|.*from.*)$ ]]; then
-            echo "Skipping commit message: $commit_message"
+          # Фильтрация ненужных строк (например, Merge, pull request, Rebase и т.д.)
+          filtered_message=$(echo "$commit_message" | sed '/^\(Merge\|Rebase\|.*pull request.*\|.*from.*\)$/d')
+
+          # Если после фильтрации сообщение пустое, пропускаем его
+          if [[ -z "$filtered_message" ]]; then
+            echo "Filtered commit message is empty, skipping."
             exit 0
           fi
 
@@ -102,7 +105,7 @@ jobs:
           fi
 
           # Формирование новой записи
-          new_entry="$next_number. $commit_message"
+          new_entry="$next_number. $filtered_message"
 
           # Проверка, заканчивается ли файл на новую строку, и добавление новой строки при необходимости
           if [ -s release_notes.txt ] && [ "$(tail -c1 release_notes.txt)" != "" ]; then
