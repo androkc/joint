@@ -25,7 +25,7 @@ jobs:
           jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
           
-           # Получаем текущую дату в формате YYYYMMDD
+          # Получаем текущую дату в формате YYYYMMDD
           current_date=$(date +%Y%m%d)
 
           # Получаем текущую версию из sep.json
@@ -36,6 +36,10 @@ jobs:
           last_build_date=$(echo $current_version | awk -F. '{print substr($2, 1, 8)}')
           last_build_number=$(echo $current_version | awk -F. '{print substr($2, 9)}')
 
+          echo "Current version: $current_version"
+          echo "Last build date: $last_build_date"
+          echo "Last build number: $last_build_number"
+
           # Если дата изменилась, сбрасываем номер сборки, иначе увеличиваем на 1
           if [ "$current_date" != "$last_build_date" ]; then
             new_build_number="01"
@@ -43,8 +47,11 @@ jobs:
             new_build_number=$(printf "%02d" $((10#$last_build_number + 1)))
           fi
 
+          echo "New build number: $new_build_number"
+
           # Создаем новую версию
           new_version="${main_version}.${current_date}${new_build_number}"
+          echo "New version: $new_version"
 
           # Обновляем версию в sep.json
           jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
