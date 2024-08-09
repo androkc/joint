@@ -4,3 +4,4 @@
 4. Merge remote-tracking branch 'origin/master'jjf
 5. 4 Проверка 3 коммитов..
 6. 4 Проверка 3 коммитов..
+7. 4 Проверка 3 коммитов..
