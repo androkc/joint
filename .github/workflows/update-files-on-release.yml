@@ -148,7 +148,7 @@ jobs:
             git config --global user.name "Petr Gurin"
             git config --global user.email "$GIT_EMAIL"
             git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; cd ..; rm -rf temp_repo; continue; }
-            git push https://x-access-token:$PAT_TOKEN@github.com/your-org/$(basename -s .git $repo).git
+            git push https://x-access-token:$PAT_TOKEN@github.com/androkc/$(basename -s .git $repo).git
 
             cd ..
             rm -rf temp_repo
