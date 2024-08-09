@@ -20,7 +20,7 @@
     },
     {
       "git": "https://git.cifro.tech/sep/helm-charts/-/blob/sep/Helm/synapi-0.1.0.tgz?ref_type=heads",
-      "version": "1.20240809.10",
+      "version": "1.20240809.99",
       "action": "установить"
     }
   ],
