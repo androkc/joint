@@ -33,9 +33,9 @@ jobs:
           last_build_date=$(echo $current_version | awk -F. '{print substr($2, 1, 8)}')
           last_build_number=$(echo $current_version | awk -F. '{print substr($2, 9)}')
 
-          echo "Current version: $current_version"
-          echo "Last build date: $last_build_date"
-          echo "Last build number: $last_build_number"
+          echo "Текущая версия: $current_version"
+          echo "Ласт дата: $last_build_date"
+          echo "Ластовый номер билда: $last_build_number"
 
           # Если дата изменилась, сбрасываем номер сборки, иначе увеличиваем на 1
           if [ "$current_date" != "$last_build_date" ]; then
