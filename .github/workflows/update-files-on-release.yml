@@ -20,9 +20,6 @@ jobs:
       - name: Update sep.json
         run: |
           echo "Updating sep.json version"
-          version=$(jq -r '.version' sep.json)
-          new_version=$(echo $version | awk -F. -v OFS=. '{$NF++;print}')
-          jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
           
           # Получаем текущую дату в формате YYYYMMDD
