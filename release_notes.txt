@@ -1,3 +1,4 @@
 1. Первичная установка СПО СЕП1
 2. 4 Проверка 3 коммитов..
 3. Merge remote-tracking branch 'origin/master'
+4. Merge remote-tracking branch 'origin/master'
