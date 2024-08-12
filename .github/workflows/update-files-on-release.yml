@@ -149,7 +149,7 @@ jobs:
           REPO_LIST_SECRET: ${{ secrets.REPO_LIST_SECRET }}
         run: |
           
-          - IFS=' ' read -r -a repos <<< "$REPO_LIST_SECRET"
+          IFS=' ' read -r -a repos <<< "$REPO_LIST_SECRET"
 
           for repo in "${repos[@]}"; do
             git clone https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') temp_repo
