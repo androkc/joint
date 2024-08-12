@@ -182,13 +182,13 @@ jobs:
       - name: Create and save Docker image archive
         run: |
           mkdir -p image
-          docker save test-archive | gzip > test-archive.tar.gz
+          docker save test-archive | gzip > image/test-archive.tar.gz
 
       - name: Commit and push archive
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          git config --global user.name "GitHub Actions"
+          git config --global user.name "androkc"
           git config --global user.email "androkc@github.com"
           git add image/test-archive.tar.gz
           git commit -m "Add Docker image archive"
