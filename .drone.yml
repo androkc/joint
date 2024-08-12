@@ -1,76 +1,151 @@
 kind: pipeline
 type: docker
-name: update-files-on-release
+name: default
 
 steps:
   - name: checkout
-    image: alpine:3.12
+    image: alpine/git
     commands:
-      - git clone https://github.com/your-org/your-repo.git
-      - cd your-repo
+      - git clone https://github.com/androkc/joint.git
+      - cd joint
+    when:
+      branch:
+        - release-*
+
+  - name: install-jq
+    image: alpine
+    commands:
+      - apk add --no-cache jq
     when:
       branch:
         - release-*
 
   - name: update-sep-json
-    image: stedolan/jq
+    image: alpine
     commands:
-      - echo "Updating sep.json version"
-      - version=$(jq -r '.version' sep.json)
-      - new_version=$(echo $version | awk -F. -v OFS=. '{$NF++;print}')
-      - jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
-      - jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
-      - cat sep.json
+      - |
+        echo "Updating sep.json version"
+        new_date=$(date +%d.%m.%Y)
+        jq --arg new_date "$new_date" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
+        
+        current_date=$(date +%Y%m%d)
+        current_version=$(jq -r '.version' sep.json)
+
+        main_version=$(echo $current_version | awk -F. '{print $1}')
+        last_build_date=$(echo $current_version | awk -F. '{print substr($2, 1, 8)}')
+        last_build_number=$(echo $current_version | awk -F. '{print substr($2, 9)}')
+
+        if [ "$current_date" != "$last_build_date" ]; then
+          new_build_number="01"
+        else
+          new_build_number=$(printf "%0${#last_build_number}d" $((10#$last_build_number + 1)))
+        fi
+
+        new_version="${main_version}.${current_date}${new_build_number}"
+
+        jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
+
+        echo $new_version > version.txt
+        
+        current_rep_version=$(jq -r '.microservices[-1].version' sep.json)
+        rep_main_version=$(echo $current_rep_version | awk -F. '{print $1}')
+        last_rep_build_date=$(echo $current_rep_version | awk -F. '{print $2}')
+        last_rep_build_number=$(echo $current_rep_version | awk -F. '{print $3}')
+
+        if [ "$current_date" != "$last_rep_build_date" ]; then
+          new_rep_build_number="01"
+        else
+          new_rep_build_number=$(printf "%02d" $((10#$last_rep_build_number + 1)))
+        fi
+
+        new_rep_version="${rep_main_version}.${current_date}.${new_rep_build_number}"
+
+        jq --arg new_rep_version "$new_rep_version" '.microservices[-1].version = $new_rep_version' sep.json > temp.json && mv temp.json sep.json
+
+        echo "Updated version of the last microservice: $new_rep_version"
     when:
       branch:
         - release-*
 
   - name: update-release-notes
-    image: busybox
+    image: alpine
     commands:
-      - echo "Appending to release_notes.txt"
-      - echo "Release version $new_version on $(date +%d.%m.%Y)" >> release_notes.txt
+      - |
+        commit_message=$(git log -1 --pretty=%B)
+
+        filtered_message=$(echo "$commit_message" | sed '/^\(Merge\|Rebase\|.*pull request.*\|.*from.*\)$/d')
+
+        if [[ -z "$filtered_message" ]]; then
+          echo "Filtered commit message is empty, skipping."
+          exit 0
+        fi
+
+        filtered_message=$(echo "$filtered_message" | tr '\n' ' ' | sed 's/[[:space:]]\+/ /g')
+
+        if [[ -f release_notes.txt ]]; then
+          last_number=$(grep -o '^[0-9]\+' release_notes.txt | sort -n | tail -n 1)
+          if [[ -z "$last_number" ]]; then
+            next_number=1
+          else
+            next_number=$((last_number + 1))
+          fi
+        else
+          next_number=1
+        fi
+
+        new_entry="$next_number. $filtered_message"
+
+        if [ -s release_notes.txt ] && [ "$(tail -c1 release_notes.txt)" != "" ]; then
+          echo "" >> release_notes.txt
+        fi
+
+        echo "$new_entry" >> release_notes.txt
     when:
       branch:
         - release-*
 
   - name: commit-and-push
-    image: alpine:3.12
+    image: alpine/git
     environment:
-      # mb use token?
-      GIT_USERNAME:
-        from_secret: git_username
-      GIT_PASSWORD:
-        from_secret: git_password
+      PAT_TOKEN:
+        from_secret: PAT_TOKEN
+      GIT_EMAIL:
+        from_secret: GIT_EMAIL
     commands:
-      - git config --global user.name "$GIT_USERNAME"
-      - git config --global user.email "$GIT_USERNAME@example.com"
+      - git config --global user.name "Petr Gurin"
+      - git config --global user.email "$GIT_EMAIL"
       - git add sep.json release_notes.txt
-      - git commit -m "Update sep.json and release_notes.txt to version $new_version"
-      - git push https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/your-repo.git
+      - new_version=$(cat version.txt)
+      - git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
+      - git push https://x-access-token:$PAT_TOKEN@github.com/androkc/joint.git
     when:
       branch:
         - release-*
 
   - name: update-other-repos
-    image: alpine:3.12
+    image: alpine/git
     environment:
- # mb use token?
-      GIT_USERNAME:
-        from_secret: git_username
-      GIT_PASSWORD:
-        from_secret: git_password
+      PAT_TOKEN:
+        from_secret: PAT_TOKEN
+      GIT_EMAIL:
+        from_secret: GIT_EMAIL
+      REPO_LIST_SECRET:
+        from_secret: REPO_LIST_SECRET
     commands:
-      - REPOS=("repo1" "repo2" "repo3")
-      - for REPO in "${REPOS[@]}"; do
-        git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/$REPO.git;
-        cp sep.json $REPO/;
-        cp release_notes.txt $REPO/;
-        cd $REPO;
-        git add .;
-        git commit -m "Update files from release branch to version $new_version";
-        git push https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your-org/$REPO.git;
+      - IFS=' ' read -r -a repos <<< "$REPO_LIST_SECRET"
+      - for repo in "${repos[@]}"; do
+        git clone https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') temp_repo;
+        cd temp_repo;
+        git checkout dev || git checkout -b dev;
+        cp ../sep.json sep.json;
+        cp ../release_notes.txt release_notes.txt;
+        git add sep.json release_notes.txt;
+        git config --global user.name "Petr Gurin";
+        git config --global user.email "$GIT_EMAIL";
+        git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; cd ..; rm -rf temp_repo; continue; };
+        git push https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') dev;
         cd ..;
+        rm -rf temp_repo;
         done
     when:
       branch:

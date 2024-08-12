@@ -145,9 +145,10 @@ jobs:
         env:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           GIT_EMAIL: ${{ secrets.GIT_EMAIL }}
+          REPO_LIST_SECRET: ${{ secrets.REPO_LIST_SECRET }}
         run: |
           
-          repos=("https://github.com/androkc/cicdcheck.git")
+          - IFS=' ' read -r -a repos <<< "$REPO_LIST_SECRET"
 
           for repo in "${repos[@]}"; do
             git clone https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') temp_repo
