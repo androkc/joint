@@ -131,6 +131,7 @@ jobs:
           git add sep.json release_notes.txt
           new_version=$(cat version.txt)
           git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; exit 0; }
+          
           echo "Token: $PAT_TOKEN"
           echo "Email: $GIT_EMAIL"
           echo "Attempting to push changes..."
@@ -165,6 +166,7 @@ jobs:
             git config --global user.name "Petr Gurin"
             git config --global user.email "$GIT_EMAIL"
             git commit -m "Update sep.json and release_notes.txt to version $new_version" || { echo "No changes to commit"; cd ..; rm -rf temp_repo; continue; }
+           
             git push https://x-access-token:$PAT_TOKEN@$(echo $repo | sed 's/https:\/\///') dev
 
             cd ..
