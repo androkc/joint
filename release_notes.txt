@@ -13,6 +13,6 @@
 13. Merge branch 'refs/heads/check-1.3' # Conflicts: # release_notes.txtsg
 14.  Check for master
 15.  Проверка 
-16. 4 Проверка 3 коммитов.. 
+16. 4 Проверка 3 коммитов..sdf
 17. 4 Проверка 3 коммитов.. 
 18. 4 Проверка 3 коммитов.. 
