@@ -151,3 +151,54 @@ steps:
       branch:
         - release-*
 
+
+
+
+  # Шаг для создания архива Docker-образа
+  - name: save-image-archive
+    image: plugins/docker
+    settings:
+      registry: nexus.essocode.ru:5001
+      repo: nexus.essocode.ru:5001/ess/synapi
+      tags:
+        - ${DRONE_SOURCE_BRANCH/\//-}
+    commands:
+      - docker save nexus.essocode.ru:5001/ess/synapi:${DRONE_SOURCE_BRANCH/\//-} | gzip > synapi-${DRONE_SOURCE_BRANCH/\//-}.tar.gz
+    volumes:
+      - name: cache
+        path: /cache
+    when:
+      branch:
+        - release-*
+
+  # Шаг для пуша архива в другую репозиторию
+  - name: push-archive-to-gitlab
+    image: alpine:3.12
+    environment:
+      GITLAB_USERNAME:
+        from_secret: gitlab_username
+      GITLAB_PASSWORD:
+        from_secret: gitlab_password
+    commands:
+      - apk add --no-cache git
+      - git config --global user.name "SEP CI"
+      - git config --global user.email "sep_user@cifro.tech"
+      - git clone https://${GITLAB_USERNAME}:${GITLAB_PASSWORD}@git.cifro.tech/sep/helm-charts.git
+      - cd helm-charts
+      - git checkout -b sep || git checkout sep
+      - mkdir -p image
+      - mv /drone/src/synapi-${DRONE_SOURCE_BRANCH/\//-}.tar.gz image/
+      - git add image/synapi-${DRONE_SOURCE_BRANCH/\//-}.tar.gz
+      # Добавляем файлы sep.json и release_notes.txt
+      - cp /drone/src/sep.json .
+      - cp /drone/src/release_notes.txt .
+      - git add sep.json release_notes.txt
+
+      - git commit -m "Add Docker image archive for synapi-${DRONE_SOURCE_BRANCH/\//-} in image folder"
+      - git push origin sep
+      - rm -f /drone/src/synapi-${DRONE_SOURCE_BRANCH/\//-}.tar.gz
+    depends_on:
+      - save-image-archive
+    when:
+      branch:
+        - release-*

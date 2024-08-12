@@ -173,3 +173,23 @@ jobs:
             rm -rf temp_repo
           done
 
+
+
+      - name: Build Docker image
+        run: |
+          docker build -t test-archive .
+
+      - name: Create and save Docker image archive
+        run: |
+          mkdir -p image
+          docker save test-archive | gzip > test-archive.tar.gz
+
+      - name: Commit and push archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "androkc@github.com"
+          git add image/test-archive.tar.gz
+          git commit -m "Add Docker image archive"
+          git push
