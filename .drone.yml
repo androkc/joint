@@ -185,7 +185,7 @@ steps:
       - git config --global user.email "sep_user@cifro.tech"
       - git clone https://${GITLAB_USERNAME}:${GITLAB_PASSWORD}@git.cifro.tech/sep/helm-charts.git
       - cd helm-charts
-      - git checkout -b sep || git checkout sep
+      - git checkout -b test || git checkout test
       - mkdir -p image
       - mv /drone/src/synapi-${DRONE_SOURCE_BRANCH/\//-}.tar.gz image/
       - git add image/synapi-${DRONE_SOURCE_BRANCH/\//-}.tar.gz
