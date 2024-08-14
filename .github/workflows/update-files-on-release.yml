@@ -64,7 +64,7 @@ jobs:
           new_rep_version="${rep_main_version}.${new_rep_minor_version}.${rep_patch_version}"
   
           # Обновляем версию последнего элемента массива в JSON
-          jq --arg new_rep_version "$new_rep_version" '.microservices[$index_number].version = $new_rep_version' sep.json > temp.json && mv temp.json sep.json
+          jq --argjson index "$index_number" --arg new_rep_version "$new_rep_version" '.microservices[$index_number].version = $new_rep_version' sep.json > temp.json && mv temp.json sep.json
 
           # Выводим новую версию последнего микросервиса
           echo "Обновленная версия последнего микросервиса: $new_rep_version"
