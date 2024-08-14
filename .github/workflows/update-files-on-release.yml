@@ -52,7 +52,7 @@ jobs:
           echo "JSON index: $index_number"
   
           # Обновляем версию последнего элемента массива microservices
-          current_rep_version=$(jq -r '.microservices[$index_number].version' sep.json)
+          current_rep_version=$(jq --argjson index "$index_number" -r '.microservices[$index].version' sep.json)
           rep_main_version=$(echo $current_rep_version | awk -F. '{print $1}')
           rep_minor_version=$(echo $current_rep_version | awk -F. '{print $2}')
           rep_patch_version=$(echo $current_rep_version | awk -F. '{print $3}')
