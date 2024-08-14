@@ -48,7 +48,7 @@ jobs:
           echo $new_version > version.txt
           echo "JSON index: $SEP_INDEX"
           
-          index_number=$(echo $SEP_INDEX | awk '{print int($0)}')
+          index_number=$((SEP_INDEX))
           echo "JSON index: $index_number"
   
           # Обновляем версию последнего элемента массива microservices
