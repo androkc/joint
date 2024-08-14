@@ -26,3 +26,4 @@
 26. check v 1.1 
 27. check v 1.1 
 28. check v 1.1 
+29. Merge remote-tracking branch 'origin/master' 
