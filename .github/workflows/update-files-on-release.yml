@@ -46,7 +46,7 @@ jobs:
           echo $new_version > version.txt
   
           # Обновляем версию последнего элемента массива microservices
-          current_rep_version=$(jq -r '.microservices[-1].version' sep.json)
+          current_rep_version=$(jq -r '.microservices[3].version' sep.json)
           rep_main_version=$(echo $current_rep_version | awk -F. '{print $1}')
           rep_minor_version=$(echo $current_rep_version | awk -F. '{print $2}')
           rep_patch_version=$(echo $current_rep_version | awk -F. '{print $3}')
@@ -58,7 +58,7 @@ jobs:
           new_rep_version="${rep_main_version}.${new_rep_minor_version}.${rep_patch_version}"
   
           # Обновляем версию последнего элемента массива в JSON
-          jq --arg new_rep_version "$new_rep_version" '.microservices[-1].version = $new_rep_version' sep.json > temp.json && mv temp.json sep.json
+          jq --arg new_rep_version "$new_rep_version" '.microservices[3].version = $new_rep_version' sep.json > temp.json && mv temp.json sep.json
 
           # Выводим новую версию последнего микросервиса
           echo "Обновленная версия последнего микросервиса: $new_rep_version"
