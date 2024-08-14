@@ -22,59 +22,46 @@ jobs:
           echo "Updating sep.json version"
           jq --arg new_date "$(date +%d.%m.%Y)" '.date = $new_date' sep.json > temp.json && mv temp.json sep.json
           
-          current_date=$(date +%Y%m%d)
+          # Извлекаем текущую версию
           current_version=$(jq -r '.version' sep.json)
-
-          # Разбиваем текущую версию на основную часть и часть сборки
+  
+          # Разбиваем текущую версию на основную и минорную части
           main_version=$(echo $current_version | awk -F. '{print $1}')
-          last_build_date=$(echo $current_version | awk -F. '{print substr($2, 1, 8)}')
-          last_build_number=$(echo $current_version | awk -F. '{print substr($2, 9)}')
+          minor_version=$(echo $current_version | awk -F. '{print $2}')
 
           echo "Текущая версия: $current_version"
-          echo "Ласт дата: $last_build_date"
-          echo "Ластовый номер билда: $last_build_number"
+          echo "Минорная версия: $minor_version"
 
-          # Если дата изменилась, сбрасываем номер сборки, иначе увеличиваем на 1
-          if [ "$current_date" != "$last_build_date" ]; then
-            new_build_number="01"
-          else
-            new_build_number=$(printf "%0${#last_build_number}d" $((10#$last_build_number + 1)))
-          fi
-
-          echo "New build number: $new_build_number"
-          new_version="${main_version}.${current_date}${new_build_number}"
-          echo "New version: $new_version"
+          # Увеличиваем минорную версию на 1
+          new_minor_version=$(printf "%0${#minor_version}d" $((10#$minor_version + 1)))
+  
+          # Создаем новую версию
+          new_version="${main_version}.${new_minor_version}"
+          echo "Новая версия: $new_version"
 
           # Обновляем версию в sep.json
           jq --arg new_version "$new_version" '.version = $new_version' sep.json > temp.json && mv temp.json sep.json
-
+  
           # Сохраняем новую версию в файл для дальнейшего использования
           echo $new_version > version.txt
-          
-          
-          
-          
+  
           # Обновляем версию последнего элемента массива microservices
           current_rep_version=$(jq -r '.microservices[-1].version' sep.json)
           rep_main_version=$(echo $current_rep_version | awk -F. '{print $1}')
-          last_rep_build_date=$(echo $current_rep_version | awk -F. '{print $2}')
-          last_rep_build_number=$(echo $current_rep_version | awk -F. '{print $3}')
-
-          # Увеличиваем номер на 1
-          if [ "$current_date" != "$last_rep_build_date" ]; then
-            new_rep_build_number="01"
-          else
-            new_rep_build_number=$(printf "%02d" $((10#$last_rep_build_number + 1)))
-          fi
-
-          # Создаем новую версию
-          new_rep_version="${rep_main_version}.${current_date}.${new_rep_build_number}"
-
+          rep_minor_version=$(echo $current_rep_version | awk -F. '{print $2}')
+          rep_patch_version=$(echo $current_rep_version | awk -F. '{print $3}')
+  
+          # Увеличиваем минорную версию микросервиса на 1
+          new_rep_minor_version=$(printf "%0${#rep_minor_version}d" $((10#$rep_minor_version + 1)))
+  
+          # Создаем новую версию для микросервиса
+          new_rep_version="${rep_main_version}.${new_rep_minor_version}.${rep_patch_version}"
+  
           # Обновляем версию последнего элемента массива в JSON
           jq --arg new_rep_version "$new_rep_version" '.microservices[-1].version = $new_rep_version' sep.json > temp.json && mv temp.json sep.json
 
           # Выводим новую версию последнего микросервиса
-          echo "Updated version of the last microservice: $new_rep_version"
+          echo "Обновленная версия последнего микросервиса: $new_rep_version"
       
 
       - name: Update release notes
